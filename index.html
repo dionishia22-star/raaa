@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Sistema de Gestión de Abarrotes</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+:root{
+--primary:#0F172A;
+--secondary:#1E293B;
+--accent:#2563EB;
+--success:#16A34A;
+--danger:#DC2626;
+--light:#F8FAFC;
+--white:#FFFFFF;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Segoe UI,sans-serif;
+}
+
+body{
+display:flex;
+background:#F1F5F9;
+}
+
+.sidebar{
+width:260px;
+background:var(--primary);
+color:white;
+height:100vh;
+padding:20px;
+position:fixed;
+overflow-y:auto;
+}
+
+.logo h2{
+font-size:20px;
+}
+
+.logo p{
+font-size:12px;
+margin-top:5px;
+opacity:.8;
+}
+
+.sidebar ul{
+list-style:none;
+margin-top:30px;
+}
+
+.sidebar li{
+padding:15px;
+cursor:pointer;
+border-radius:8px;
+margin-bottom:10px;
+}
+
+.sidebar li:hover{
+background:var(--accent);
+}
+
+.main{
+margin-left:260px;
+padding:30px;
+width:100%;
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+margin-top:20px;
+}
+
+.card{
+background:white;
+padding:25px;
+border-radius:15px;
+box-shadow:0 5px 15px rgba(0,0,0,.08);
+}
+
+.card span{
+font-size:28px;
+font-weight:bold;
+color:var(--accent);
+}
+
+form{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:10px;
+margin-top:20px;
+}
+
+input,select,button{
+padding:12px;
+border:1px solid #ccc;
+border-radius:8px;
+}
+
+button{
+background:var(--accent);
+color:white;
+border:none;
+cursor:pointer;
+}
+
+button:hover{
+opacity:.9;
+}
+
+table{
+width:100%;
+background:white;
+margin-top:20px;
+border-collapse:collapse;
+}
+
+th,td{
+padding:12px;
+border-bottom:1px solid #ddd;
+text-align:left;
+}
+
+.oculto{
+display:none;
+}
+
+@media(max-width:768px){
+body{
+flex-direction:column;
+}
+
+.sidebar{
+position:relative;
+width:100%;
+height:auto;
+}
+
+.main{
+margin-left:0;
+}
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<div class="logo">
+<h2>Sistema de Gestión de Abarrotes</h2>
+<p>Hecho por Dionisia Gutierrez</p>
+</div>
+
+<ul>
+<li onclick="mostrarSeccion('dashboard')">
+<i class="fas fa-chart-line"></i> Dashboard
+</li>
+
+<li onclick="mostrarSeccion('productos')">
+<i class="fas fa-box"></i> Productos
+</li>
+
+<li onclick="mostrarSeccion('ventas')">
+<i class="fas fa-cash-register"></i> Ventas
+</li>
+
+<li onclick="mostrarSeccion('reportes')">
+<i class="fas fa-file-alt"></i> Reportes
+</li>
+
+<li onclick="mostrarSeccion('vencimientos')">
+<i class="fas fa-calendar"></i> Vencimientos
+</li>
+</ul>
+
+</div>
+
+<div class="main">
+
+<section id="dashboard" class="seccion">
+
+<h1>Panel Principal</h1>
+
+<div class="cards">
+
+<div class="card">
+<h3>Ventas Hoy</h3>
+<span id="ventasDia">S/0.00</span>
+</div>
+
+<div class="card">
+<h3>Productos</h3>
+<span id="totalProductos">0</span>
+</div>
+
+<div class="card">
+<h3>Bajo Stock</h3>
+<span id="bajoStock">0</span>
+</div>
+
+<div class="card">
+<h3>Ingreso Mensual</h3>
+<span id="ingresoMensual">S/0.00</span>
+</div>
+
+</div>
+
+</section>
+
+<section id="productos" class="seccion oculto">
+
+<h2>Gestión de Productos</h2>
+
+<form id="productoForm">
+
+<input type="text" id="codigo" placeholder="Código" required>
+
+<input type="text" id="nombre" placeholder="Nombre" required>
+
+<select id="categoria">
+<option>Abarrotes</option>
+<option>Bebidas</option>
+<option>Lácteos</option>
+<option>Panadería</option>
+<option>Golosinas</option>
+<option>Conservas</option>
+<option>Productos de limpieza</option>
+<option>Productos de higiene personal</option>
+<option>Frutas</option>
+<option>Verduras</option>
+<option>Carnes y embutidos</option>
+<option>Snacks</option>
+<option>Mascotas</option>
+<option>Congelados</option>
+<option>Otros</option>
+</select>
+
+<input type="text" id="marca" placeholder="Marca">
+
+<input type="text" id="unidad" placeholder="Unidad">
+
+<input type="number" id="compra" placeholder="Precio Compra">
+
+<input type="number" id="venta" placeholder="Precio Venta">
+
+<input type="number" id="stock" placeholder="Stock">
+
+<input type="number" id="stockMinimo" placeholder="Stock Mínimo">
+
+<input type="date" id="vencimiento">
+
+<button type="submit">
+Registrar Producto
+</button>
+
+</form>
+
+<table>
+
+<thead>
+<tr>
+<th>Código</th>
+<th>Nombre</th>
+<th>Categoría</th>
+<th>Marca</th>
+<th>Stock</th>
+<th>Acciones</th>
+</tr>
+</thead>
+
+<tbody id="tablaProductos"></tbody>
+
+</table>
+
+</section>
+
+<section id="ventas" class="seccion oculto">
+
+<h2>Registro de Ventas</h2>
+
+<input type="text" id="cliente" placeholder="Cliente">
+
+<input type="text" id="documento" placeholder="DNI o RUC">
+
+<select id="productoVenta"></select>
+
+<input type="number" id="cantidadVenta" placeholder="Cantidad">
+
+<button onclick="agregarProductoVenta()">
+Agregar Producto
+</button>
+
+<table>
+<thead>
+<tr>
+<th>Producto</th>
+<th>Cantidad</th>
+<th>P.Unitario</th>
+<th>Subtotal</th>
+</tr>
+</thead>
+
+<tbody id="detalleVenta"></tbody>
+</table>
+
+<h2>Total: S/ <span id="totalVenta">0.00</span></h2>
+
+<button onclick="registrarVenta()">
+Finalizar Venta
+</button>
+
+</section>
+
+<section id="reportes" class="seccion oculto">
+
+<h2>Reportes</h2>
+
+<button onclick="exportarExcel()">
+Exportar Excel
+</button>
+
+</section>
+
+<section id="vencimientos" class="seccion oculto">
+
+<h2>Calendario de Vencimientos</h2>
+
+<div id="calendarioVencimientos"></div>
+
+</section>
+
+</div>
+
+<script>
+let productos =
+JSON.parse(localStorage.getItem("productos")) || [];
+
+let ventas =
+JSON.parse(localStorage.getItem("ventas")) || [];
+
+let carrito=[];
+
+function guardarDatos(){
+localStorage.setItem("productos",JSON.stringify(productos));
+localStorage.setItem("ventas",JSON.stringify(ventas));
+}
+
+function mostrarSeccion(id){
+
+document
+.querySelectorAll(".seccion")
+.forEach(s=>s.classList.add("oculto"));
+
+document
+.getElementById(id)
+.classList.remove("oculto");
+}
+
+document
+.getElementById("productoForm")
+.addEventListener("submit",function(e){
+
+e.preventDefault();
+
+let producto={
+codigo:codigo.value,
+nombre:nombre.value,
+categoria:categoria.value,
+marca:marca.value,
+unidad:unidad.value,
+compra:compra.value,
+venta:venta.value,
+stock:Number(stock.value),
+stockMinimo:Number(stockMinimo.value),
+vencimiento:vencimiento.value
+};
+
+productos.push(producto);
+
+guardarDatos();
+cargarProductos();
+
+this.reset();
+});
+
+function cargarProductos(){
+
+let tabla=document.getElementById("tablaProductos");
+tabla.innerHTML="";
+
+let selector=document.getElementById("productoVenta");
+selector.innerHTML="";
+
+productos.forEach((p,index)=>{
+
+tabla.innerHTML+=`
+<tr>
+<td>${p.codigo}</td>
+<td>${p.nombre}</td>
+<td>${p.categoria}</td>
+<td>${p.marca}</td>
+<td>${p.stock}</td>
+<td>
+<button onclick="eliminarProducto(${index})">
+Eliminar
+</button>
+</td>
+</tr>
+`;
+
+selector.innerHTML+=`
+<option value="${index}">
+${p.nombre}
+</option>
+`;
+});
+
+document.getElementById("totalProductos").textContent =
+productos.length;
+
+actualizarDashboard();
+}
+
+function eliminarProducto(index){
+productos.splice(index,1);
+guardarDatos();
+cargarProductos();
+}
+
+function agregarProductoVenta(){
+
+let index=productoVenta.value;
+let cantidad=Number(cantidadVenta.value);
+
+if(cantidad<=0) return;
+
+let producto=productos[index];
+
+if(cantidad>producto.stock){
+alert("Stock insuficiente");
+return;
+}
+
+carrito.push({
+producto:producto.nombre,
+precio:Number(producto.venta),
+cantidad:cantidad,
+subtotal:Number(producto.venta)*cantidad,
+indice:index
+});
+
+renderCarrito();
+}
+
+function renderCarrito(){
+
+let tbody=document.getElementById("detalleVenta");
+
+tbody.innerHTML="";
+
+let total=0;
+
+carrito.forEach(item=>{
+
+total+=item.subtotal;
+
+tbody.innerHTML+=`
+<tr>
+<td>${item.producto}</td>
+<td>${item.cantidad}</td>
+<td>S/${item.precio}</td>
+<td>S/${item.subtotal}</td>
+</tr>
+`;
+});
+
+totalVenta.textContent=total.toFixed(2);
+}
+
+function registrarVenta(){
+
+if(carrito.length===0) return;
+
+let total=0;
+
+carrito.forEach(item=>{
+
+productos[item.indice].stock -= item.cantidad;
+total += item.subtotal;
+
+});
+
+ventas.push({
+numero:"V"+Date.now(),
+fecha:new Date().toLocaleDateString(),
+hora:new Date().toLocaleTimeString(),
+cliente:cliente.value,
+documento:documento.value,
+productos:carrito,
+total:total
+});
+
+carrito=[];
+
+guardarDatos();
+cargarProductos();
+renderCarrito();
+
+alert("Venta registrada");
+}
+
+function actualizarDashboard(){
+
+let bajo=productos.filter(
+p=>p.stock<=p.stockMinimo
+).length;
+
+bajoStock.textContent=bajo;
+
+let totalVentas=
+ventas.reduce((a,b)=>a+b.total,0);
+
+ventasDia.textContent=
+"S/"+totalVentas.toFixed(2);
+
+ingresoMensual.textContent=
+"S/"+totalVentas.toFixed(2);
+}
+
+function exportarExcel(){
+
+let wb=XLSX.utils.book_new();
+
+let hojaProductos=
+XLSX.utils.json_to_sheet(productos);
+
+let hojaVentas=
+XLSX.utils.json_to_sheet(ventas);
+
+XLSX.utils.book_append_sheet(
+wb,
+hojaProductos,
+"Productos"
+);
+
+XLSX.utils.book_append_sheet(
+wb,
+hojaVentas,
+"Ventas"
+);
+
+XLSX.writeFile(
+wb,
+"Sistema_Abarrotes.xlsx"
+);
+}
+
+cargarProductos();
+</script>
+
+</body>
+</html>
